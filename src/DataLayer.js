@@ -13,3 +13,5 @@ export const DataLayer = ({
     </DataLayerContext.Provider>
 );
 
+
+export const useDataLayerValue = () => useContext(DataLayerContext);
