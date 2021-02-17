@@ -14,24 +14,38 @@ function App() {
   const [{ user, token }, dispatch] = useDataLayerValue();
   //run code basded on a given condition runs once if input is emoty and chn ages once input changes 
   useEffect(() => {
+    //setToken(_token);
     const hash = getTokenFromUrl();
     window.location.hash = "";
-
     const _token = hash.access_token;
-    if (_token) {
 
+    if (_token) {
+      spotify.setAccessToken(_token);
       dispatch({
         type: "SET_TOKEN",
         token: _token,
       })
-      //setToken(_token);
 
+      spotify.getPlaylist("37i9dQZEVXcJjW0I5WqvDe").then((response) =>
+        dispatch({
+          type: "SET_DISCOVER_WEEKLY",
+          discover_weekly: response,
+        })
+      );
 
-      spotify.setAccessToken(_token);
+      spotify.getMyTopArtists().then((response) =>
+        dispatch({
+          type: "SET_TOP_ARTISTS",
+          top_artists: response,
+        })
+      );
+
+      dispatch({
+        type: "SET_SPOTIFY",
+        spotify: spotify,
+      });
 
       spotify.getMe().then((user) => {
-
-
         dispatch({
           type: 'SET_USER',
           user: user,
@@ -41,25 +55,19 @@ function App() {
         dispatch({
           type: 'SET_PLAYLISTS',
           playlists,
-        })
-
-      })
-
+        });
+      });
     }
     // console.log("I HAVE A TOKEN 👉", token);
-  }, [])
+  }, [token, dispatch])
 
   // console.log('👨', user);
   // console.log('👽', token)
   return (
     //bem convetion
     <div className="app">
-      {
-        token ? (
-          <Player spotify />) :
-          <Login />
-      }
-
+      {!token && <Login />}
+      {token && <Player spotify={spotify} />}
     </div>
   );
 }
